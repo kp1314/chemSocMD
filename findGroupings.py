@@ -11,7 +11,12 @@ def main():
     parentResults = pd.read_csv(arg3).as_matrix()
 
     ret = sortChildren(childResults[:,7:], parentResults[:,7:])
-    print("Sorted innit :P")
+
+    i=0
+    for x in ret:
+        print('parent %s has children %s\n' %(i, x))
+        i= i + 1
+
     #work out how to print the results of sortChildren
 
 # finds position of parent with minimum difference in comparison table
@@ -19,21 +24,20 @@ def main():
 def bestParentIndex(differences):
     currMinPos = 0
     for i in range(len(differences)):
-        if differences[i] != -1:
-            if differences[i] < differences[currMinPos]:
-                curMinPos = i
+        if differences[i] != -1 and differences[i] < differences[currMinPos]:
+                currMinPos = i
     return currMinPos
-        
+
 # returns index of max child in a parent's children list
 def maxInd(comparisonTable, indexes, parentIndex):
     maxInd = -1
-    
+
     for i in range(3):
         if (comparisonTable[indexes[i]][parentIndex] > maxInd):
             maxInd = i
-    
+
     return maxInd
-    
+
 # work out the Differences between the children and parents
 # could change this to another measure
 def differenceSum(childCol, parentCol):
@@ -51,18 +55,19 @@ def sortChildren(childResults, parentResults):
         for j in range(plen):
             comparisonTable[i][j] = differenceSum(childResults[i], parentResults[j])
 
+    endOfChildren = len(availableChildren)
     while len(availableChildren) >= 3:
-        print('availableChildren = %d\n', availableChildren)
-        for i in range(len(availableChildren)):
-            print('comparing child %d\n', i)
-            childInd = availableChildren[i]
+
+
+        while endOfChildren > 0:
+            childInd = availableChildren[0]
             hasParent = False
-        
+
             while hasParent == False:
                 bestIndex = bestParentIndex(comparisonTable[childInd])
                 newParent = parentsChildren[bestIndex]
                 currentDiff = comparisonTable[childInd][bestIndex]
-        
+
                 if len(parentsChildren[bestIndex]) == 3:
                     maxChildPos = maxInd(comparisonTable, newParent, bestIndex)
                     maxChild = newParent[maxChildPos]
@@ -72,14 +77,16 @@ def sortChildren(childResults, parentResults):
                         parentsChildren[bestIndex][maxChildPos] = childInd
                         comparisonTable[maxChild][bestIndex] = -1
                         availableChildren = availableChildren + [maxChild]
-                        del availableChildren[i]
+                        del availableChildren[0]
+                        hasParent = True
                 else:
                     parentsChildren[bestIndex] = parentsChildren[bestIndex] + [childInd]
-                    del availableChildren[i]
+                    del availableChildren[0]
+                    i=i-1
+                    endOfChildren = endOfChildren - 1
                     hasParent = True
-          
-        
-        
+    return parentsChildren
+
 
 
 if __name__ == "__main__":
