@@ -20,7 +20,6 @@ def bestParentIndex(differences):
     currMinPos = 0
     for i in range(len(differences)):
         if differences[i] != -1:
-            
             if differences[i] < differences[currMinPos]:
                 curMinPos = i
     return currMinPos
@@ -30,8 +29,8 @@ def maxInd(comparisonTable, indexes, parentIndex):
     maxInd = -1
     
     for i in range(3):
-        if (comparisonTable[indexes[i]][parentIndex] > maxInd)  
-        maxInd = i
+        if (comparisonTable[indexes[i]][parentIndex] > maxInd):
+            maxInd = i
     
     return maxInd
     
@@ -53,7 +52,9 @@ def sortChildren(childResults, parentResults):
             comparisonTable[i][j] = differenceSum(childResults[i], parentResults[j])
 
     while len(availableChildren) >= 3:
+        print('availableChildren = %d\n', availableChildren)
         for i in range(len(availableChildren)):
+            print('comparing child %d\n', i)
             childInd = availableChildren[i]
             hasParent = False
         
@@ -63,19 +64,19 @@ def sortChildren(childResults, parentResults):
                 currentDiff = comparisonTable[childInd][bestIndex]
         
                 if len(parentsChildren[bestIndex]) == 3:
-                maxChildPos = maxInd(comparisonTable, newParent, bestIndex)
-                maxChild = newParent[maxChildPos]
+                    maxChildPos = maxInd(comparisonTable, newParent, bestIndex)
+                    maxChild = newParent[maxChildPos]
                     if currentDiff > comparisonTable[maxChild][bestIndex]:
                         comparisonTable[childInd][bestIndex] = -1
-                        continue
-                    parentsChildren[bestIndex][maxChildPos] = childInd
-                    comparisonTable[maxChild][bestIndex] = -1
-                    availableChildren = availableChildren + maxChild
+                    else:
+                        parentsChildren[bestIndex][maxChildPos] = childInd
+                        comparisonTable[maxChild][bestIndex] = -1
+                        availableChildren = availableChildren + [maxChild]
+                        del availableChildren[i]
+                else:
+                    parentsChildren[bestIndex] = parentsChildren[bestIndex] + [childInd]
                     del availableChildren[i]
-            
-                parentsChildren[bestIndex] = parentsChildren[bestIndex] + childInd
-                del availableChildren[i]
-                hasParent = True
+                    hasParent = True
           
         
         
