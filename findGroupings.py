@@ -70,12 +70,13 @@ def sortChildren(childResults, parentResults):
     plen = len(parentResults)
 
     # safely assume that there are more children than parents
-    numberOfChildren = (clen/plen) + 1
+    numberOfChildren = (clen/plen)
+    rejects = []
     parentsChildren = [[] for x in range(plen)]
     availableChildren = [x for x in range(clen)]
     comparisonTable = [[0 for x in range(plen)] for y in range(clen)]
 
-    #each child's list of differences is a rown in comptab
+    #each child's list of differences is a row in comptab
     for i in range(clen):
         for j in range(plen):
             comparisonTable[i][j] = differenceSum(childResults[i], parentResults[j])
@@ -88,6 +89,14 @@ def sortChildren(childResults, parentResults):
             hasParent = False
 
             while hasParent == False:
+
+                if comparisonTable[childInd][0] == -1 and comparisonTable[childInd][1:] == comparisonTable[childInd][:-1]:
+                    print(rejects)
+                    rejects = rejects + [childInd]
+                    del availableChildren[0]
+                    endOfChildren = endOfChildren - 1
+                    hasParent = True
+
                 bestIndex = bestParentIndex(comparisonTable[childInd])
                 newParent = parentsChildren[bestIndex]
                 currentDiff = comparisonTable[childInd][bestIndex]
@@ -106,9 +115,9 @@ def sortChildren(childResults, parentResults):
                 else:
                     parentsChildren[bestIndex] = parentsChildren[bestIndex] + [childInd]
                     del availableChildren[0]
-                    i=i-1
                     endOfChildren = endOfChildren - 1
                     hasParent = True
+
     return parentsChildren
 
 
