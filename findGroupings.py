@@ -42,12 +42,24 @@ def main():
 
 # finds position of parent with minimum difference in comparison table
 # can't be a parent that has better matches and is full
+# can't all be -1 as rejects are dealt with before call to function
 def bestParentIndex(differences):
-    currMinPos = 0
-    for i in range(len(differences)):
-        if differences[i] != -1 and differences[i] < differences[currMinPos]:
-                currMinPos = i
-    return currMinPos
+    numdiff = len(differences)
+    i = 0
+
+    while i < numdiff:
+        if differences[i] != -1:
+            break
+        i = i + 1
+
+    j = i + 1
+    while j < numdiff:
+        if differences[j] != -1 and differences[j] < differences[i]:
+            i = j
+        j = j + 1
+
+    return i
+
 
 # returns index of max child in a parent's children list
 def maxInd(comparisonTable, indexes, parentIndex):
@@ -91,19 +103,25 @@ def sortChildren(childResults, parentResults):
             while hasParent == False:
 
                 if comparisonTable[childInd][0] == -1 and comparisonTable[childInd][1:] == comparisonTable[childInd][:-1]:
-                    print(rejects)
                     rejects = rejects + [childInd]
                     del availableChildren[0]
                     endOfChildren = endOfChildren - 1
                     hasParent = True
+                    continue
 
                 bestIndex = bestParentIndex(comparisonTable[childInd])
+                print("bestIndex: %d" %(bestIndex))
+                # print("diffs: %d" %(comparisonTable[childInd]))
                 newParent = parentsChildren[bestIndex]
                 currentDiff = comparisonTable[childInd][bestIndex]
 
                 if len(newParent) == numberOfChildren:
                     maxChildPos = maxInd(comparisonTable, newParent, bestIndex)
                     maxChild = newParent[maxChildPos]
+                    # print("childInd: %d" %(childInd))
+                    # print("currentDiff: %d" %(currentDiff))
+                    # print("Maxind: %d" %(maxChild))
+                    # print("Compdiff: %d" %(comparisonTable[maxChild][bestIndex]))
                     if currentDiff > comparisonTable[maxChild][bestIndex]:
                         comparisonTable[childInd][bestIndex] = -1
                     else:
