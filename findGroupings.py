@@ -76,73 +76,77 @@ def differenceSum(childCol, parentCol):
     return np.sum(np.square(np.subtract(parentCol, childCol)))
 
 def sortChildren(childResults, parentResults):
-
     clen = len(childResults)
     plen = len(parentResults)
-
-    # safely assume that there are more children than parents
-    numberOfChildren = (clen//plen)
-    rejects = []
-    parentsChildren = [[] for x in range(plen)]
-    availableChildren = [x for x in range(clen)]
     comparisonTable = [[0 for x in range(plen)] for y in range(clen)]
+    availableChildren = [x for x in range(len(comparisonTable))]
 
     #each child's list of differences is a row in comptab
     for i in range(clen):
         for j in range(plen):
             comparisonTable[i][j] = differenceSum(childResults[i], parentResults[j])
+    rejects = []
+    parentsChildren = sortChildrenHelper(comparisonTable, parentResults, availableChildren, rejects)
+    print(rejects)
+    clen = len(rejects)
+    rejectTable = [[0 for x in range(plen)] for y in range(clen)]
+    availableChildren = [x for x in range(len(rejectTable))]
 
-
-    endOfChildren = len(availableChildren)
-    while len(availableChildren) >= numberOfChildren:
-
-        while endOfChildren > 0:
-            childInd = availableChildren[0]
-            hasParent = False
-
-            while hasParent == False:
-
-                if comparisonTable[childInd][0] == -1 and comparisonTable[childInd][1:] == comparisonTable[childInd][:-1]:
-                    rejects = rejects + [childInd]
-                    #print("rejects: %s" %(rejects))
-                    del availableChildren[0]
-                    endOfChildren = endOfChildren - 1
-                    hasParent = True
-                    continue
-
-                bestIndex = bestParentIndex(comparisonTable[childInd])
-                newParent = parentsChildren[bestIndex]
-                currentDiff = comparisonTable[childInd][bestIndex]
-
-                if len(newParent) == numberOfChildren:
-                    maxChildPos = maxInd(comparisonTable, newParent, bestIndex)
-                    maxChild = newParent[maxChildPos]
-                    if currentDiff >= comparisonTable[maxChild][bestIndex]:
-                        comparisonTable[childInd][bestIndex] = -1
-                    else:
-                        parentsChildren[bestIndex][maxChildPos] = childInd
-                        comparisonTable[maxChild][bestIndex] = -1
-                        availableChildren = availableChildren + [maxChild]
-                        del availableChildren[0]
-                        hasParent = True
-                else:
-                    parentsChildren[bestIndex] = parentsChildren[bestIndex] + [childInd]
-                    del availableChildren[0]
-                    endOfChildren = endOfChildren - 1
-                    hasParent = True
-
-    rejectTable = [[0 for x in range(plen)] for y in range(len(rejects))]
-    for i in range(len(rejects)):
+    #each child's list of differences is a row in comptab
+    for i in range(clen):
         for j in range(plen):
             rejectTable[i][j] = differenceSum(childResults[rejects[i]], parentResults[j])
+    restOfParentsChildren = sortChildrenHelper(rejectTable, parentResults, availableChildren, rejects)
 
-    for i in range(len(rejects)):
-        bestIndex = bestParentIndex(rejectTable[i])
-        newParent = parentsChildren[bestIndex]
-        if len(newParent) != (numberOfChildren+1):
-            parentsChildren[bestIndex] += [rejects[i]]
-        else:
-            rejectTable[i][bestIndex] = -1
+    for i in range(len(restOfParentsChildren)):
+        extraChild = restOfParentsChildren[i]
+        if extraChild != []:
+            parentsChildren[i].append(rejects[restOfParentsChildren[i][0]])
+    return parentsChildren
+
+def sortChildrenHelper(comparisonTable, parentResults, availableChildren, rejects):
+    plen = len(parentResults)
+    # safely assume that there are more children than parents
+    parentsChildren = [[] for x in range(plen)]
+
+    numberOfChildren = 1 if len(rejects) > 0 else len(comparisonTable)//plen
+
+    endOfChildren = len(availableChildren)
+
+
+    while endOfChildren > 0:
+        childInd = availableChildren[0]
+        hasParent = False
+
+        while hasParent == False:
+
+            if comparisonTable[childInd][0] == -1 and comparisonTable[childInd][1:] == comparisonTable[childInd][:-1]:
+                rejects.append(childInd)
+                del availableChildren[0]
+                endOfChildren = endOfChildren - 1
+                hasParent = True
+                continue
+
+            bestIndex = bestParentIndex(comparisonTable[childInd])
+            newParent = parentsChildren[bestIndex]
+            currentDiff = comparisonTable[childInd][bestIndex]
+
+            if len(newParent) == numberOfChildren:
+                maxChildPos = maxInd(comparisonTable, newParent, bestIndex)
+                maxChild = newParent[maxChildPos]
+                if currentDiff >= comparisonTable[maxChild][bestIndex]:
+                    comparisonTable[childInd][bestIndex] = -1
+                else:
+                    parentsChildren[bestIndex][maxChildPos] = childInd
+                    comparisonTable[maxChild][bestIndex] = -1
+                    availableChildren = availableChildren + [maxChild]
+                    del availableChildren[0]
+                    hasParent = True
+            else:
+                parentsChildren[bestIndex].append(childInd)
+                del availableChildren[0]
+                endOfChildren = endOfChildren - 1
+                hasParent = True
 
     return parentsChildren
 
