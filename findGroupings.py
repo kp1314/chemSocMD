@@ -32,10 +32,10 @@ def main():
     # for i in range(len)
     # out.writerow(data)
 
-    # i=0
-    # for x in ret:
-    #     print('parent %s has children %s\n' %(i, x))
-    #     i= i + 1
+    i=0
+    for x in ret:
+        print('parent %s has children %s\n' %(i, x))
+        i= i + 1
 
     #work out how to print the results of sortChildren
 
@@ -81,7 +81,7 @@ def sortChildren(childResults, parentResults):
     plen = len(parentResults)
 
     # safely assume that there are more children than parents
-    numberOfChildren = (clen/plen)
+    numberOfChildren = (clen//plen)
     rejects = []
     parentsChildren = [[] for x in range(plen)]
     availableChildren = [x for x in range(clen)]
@@ -104,7 +104,7 @@ def sortChildren(childResults, parentResults):
 
                 if comparisonTable[childInd][0] == -1 and comparisonTable[childInd][1:] == comparisonTable[childInd][:-1]:
                     rejects = rejects + [childInd]
-                    print("rejects: %s" %(rejects))
+                    #print("rejects: %s" %(rejects))
                     del availableChildren[0]
                     endOfChildren = endOfChildren - 1
                     hasParent = True
@@ -137,7 +137,12 @@ def sortChildren(childResults, parentResults):
             rejectTable[i][j] = differenceSum(childResults[rejects[i]], parentResults[j])
 
     for i in range(len(rejects)):
-        parentsChildren[bestParentIndex(rejectTable[i])] += [rejects[i]]
+        bestIndex = bestParentIndex(rejectTable[i])
+        newParent = parentsChildren[bestIndex]
+        if len(newParent) != (numberOfChildren+1):
+            parentsChildren[bestIndex] += [rejects[i]]
+        else:
+            rejectTable[i][bestIndex] = -1
 
     return parentsChildren
 
