@@ -60,7 +60,6 @@ def bestParentIndex(differences):
 
     return i
 
-
 # returns index of max child in a parent's children list
 def maxInd(comparisonTable, indexes, parentIndex):
     maxInd = -1
@@ -80,8 +79,6 @@ def sortChildren(childResults, parentResults):
 
     clen = len(childResults)
     plen = len(parentResults)
-    print("clen: %s" %(clen))
-    print("plen: %s" %(plen))
 
     # safely assume that there are more children than parents
     numberOfChildren = (clen/plen)
@@ -106,8 +103,8 @@ def sortChildren(childResults, parentResults):
             while hasParent == False:
 
                 if comparisonTable[childInd][0] == -1 and comparisonTable[childInd][1:] == comparisonTable[childInd][:-1]:
-                    print("rejects: %s" %(rejects))
                     rejects = rejects + [childInd]
+                    print("rejects: %s" %(rejects))
                     del availableChildren[0]
                     endOfChildren = endOfChildren - 1
                     hasParent = True
