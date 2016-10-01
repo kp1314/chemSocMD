@@ -32,10 +32,10 @@ def main():
     # for i in range(len)
     # out.writerow(data)
 
-    i=0
-    for x in ret:
-        print('parent %s has children %s\n' %(i, x))
-        i= i + 1
+    # i=0
+    # for x in ret:
+    #     print('parent %s has children %s\n' %(i, x))
+    #     i= i + 1
 
     #work out how to print the results of sortChildren
 
@@ -80,8 +80,8 @@ def sortChildren(childResults, parentResults):
 
     clen = len(childResults)
     plen = len(parentResults)
-    # print("clen: %s" %(clen))
-    # print("plen: %s" %(plen))
+    print("clen: %s" %(clen))
+    print("plen: %s" %(plen))
 
     # safely assume that there are more children than parents
     numberOfChildren = (clen/plen)
@@ -106,7 +106,7 @@ def sortChildren(childResults, parentResults):
             while hasParent == False:
 
                 if comparisonTable[childInd][0] == -1 and comparisonTable[childInd][1:] == comparisonTable[childInd][:-1]:
-                    #print("rejects: %s" %(rejects))
+                    print("rejects: %s" %(rejects))
                     rejects = rejects + [childInd]
                     del availableChildren[0]
                     endOfChildren = endOfChildren - 1
