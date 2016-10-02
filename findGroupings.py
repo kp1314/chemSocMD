@@ -11,6 +11,8 @@ def main():
     parentResults = pd.read_csv(arg3).as_matrix()
     parentUsers = parentResults[:,3]
     coParentUsers = parentResults[:,4]
+    ancillary = parentResults[:,5]
+    childAncillarys = childResults[:,5]
     coParents = [-1 for i in range(len(parentUsers))]
 
     for i in range(len(parentUsers)):
@@ -21,23 +23,29 @@ def main():
                 coParents[i] = j
                 break
 
+    joinedAncillarys = [[ancillary[i],ancillary[coParents[i]]] for i in range(len(ancillary))]
+
     # assumes all parents have one co-parent
-    ret = sortChildren(childResults[:,7:], parentResults[:,7:])
+    ret = sortChildren(childResults[:,7:], parentResults[:,7:], joinedAncillarys, childAncillarys)
 
-    # data = []
-    # data = ["%s, \n"  %(parentsResults[:,1:2][i+1]) for i in range(len(ret))]
-    # f = open('daveOut.csv', "wb")
-    # out = csv.writer(f, delimiter='\n',quoting=csv.QUOTE_ALL)
-    #
-    # for i in range(len)
-    # out.writerow(data)
+    data = []
+    data = [["%s - %s and %s - %s"  %(parentResults[:,1][i], parentResults[:,5][i], parentResults[:,1][coParents[i]], parentResults[:,5][coParents[i]])] for i in range(len(ret))]
 
-    i=0
-    for x in ret:
-        print('parent %s has children %s\n' %(i, x))
-        i= i + 1
+    for i in range(len(ret)):
+        for j in range(len(ret[i])):
+            newKid = childResults[:,1][ret[i][j]] + " - " + ("".join(childResults[:,3][ret[i][j]].split())).lower() + " - " + ("".join(childResults[:,5][ret[i][j]].split())).lower()
+            data[i].append(newKid)
+        for j in range(len(ret[coParents[i]])):
+            newKid = childResults[:,1][ret[coParents[i]][j]] + " - " + ("".join(childResults[:,3][ret[coParents[i]][j]].split())).lower() + " - " + ("".join(childResults[:,5][ret[coParents[i]][j]].split())).lower()
+            data[i].append(newKid)
 
-    #work out how to print the results of sortChildren
+    f = open("daveOut.csv", "w", newline='')
+    out = csv.writer(f,dialect='excel')
+
+    for i in range(len(data)):
+         print("%s\n" %(data[i]))
+
+    out.writerows(data)
 
 
 # finds position of parent with minimum difference in comparison table
@@ -75,19 +83,23 @@ def maxInd(comparisonTable, indexes, parentIndex):
 def differenceSum(childCol, parentCol):
     return np.sum(np.square(np.subtract(parentCol, childCol)))
 
-def sortChildren(childResults, parentResults):
+def sortChildren(childResults, parentResults, parentAncillarys, childAncillarys):
     clen = len(childResults)
     plen = len(parentResults)
+
     comparisonTable = [[0 for x in range(plen)] for y in range(clen)]
+
     availableChildren = [x for x in range(len(comparisonTable))]
 
     #each child's list of differences is a row in comptab
     for i in range(clen):
         for j in range(plen):
             comparisonTable[i][j] = differenceSum(childResults[i], parentResults[j])
+            if childAncillarys[i] not in parentAncillarys[j]:
+                 comparisonTable[i][j] += len(childResults[0])/2
     rejects = []
     parentsChildren = sortChildrenHelper(comparisonTable, parentResults, availableChildren, rejects)
-    print(rejects)
+
     clen = len(rejects)
     rejectTable = [[0 for x in range(plen)] for y in range(clen)]
     availableChildren = [x for x in range(len(rejectTable))]
@@ -96,6 +108,9 @@ def sortChildren(childResults, parentResults):
     for i in range(clen):
         for j in range(plen):
             rejectTable[i][j] = differenceSum(childResults[rejects[i]], parentResults[j])
+            if childAncillarys[rejects[i]] not in parentAncillarys[j]:
+                 rejectTable[i][j] += len(childResults[0])/2
+
     restOfParentsChildren = sortChildrenHelper(rejectTable, parentResults, availableChildren, rejects)
 
     for i in range(len(restOfParentsChildren)):
