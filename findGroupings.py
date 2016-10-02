@@ -28,16 +28,21 @@ def main():
     # assumes all parents have one co-parent
     ret = sortChildren(childResults[:,7:], parentResults[:,7:], joinedAncillarys, childAncillarys)
 
+    printedCoparents = []
     data = []
-    data = [["%s - %s and %s - %s"  %(parentResults[:,1][i], parentResults[:,5][i], parentResults[:,1][coParents[i]], parentResults[:,5][coParents[i]])] for i in range(len(ret))]
 
     for i in range(len(ret)):
-        for j in range(len(ret[i])):
-            newKid = childResults[:,1][ret[i][j]] + " - " + ("".join(childResults[:,3][ret[i][j]].split())).lower() + " - " + ("".join(childResults[:,5][ret[i][j]].split())).lower()
-            data[i].append(newKid)
-        for j in range(len(ret[coParents[i]])):
-            newKid = childResults[:,1][ret[coParents[i]][j]] + " - " + ("".join(childResults[:,3][ret[coParents[i]][j]].split())).lower() + " - " + ("".join(childResults[:,5][ret[coParents[i]][j]].split())).lower()
-            data[i].append(newKid)
+        if i not in printedCoparents:
+            couple = [parentResults[:,1][i] + " - " + parentResults[:,5][i] + " and " + parentResults[:,1][coParents[i]] + " - " + parentResults[:,5][coParents[i]]]
+            for j in range(len(ret[i])):
+                newKid = childResults[:,1][ret[i][j]] + " - " + ("".join(childResults[:,3][ret[i][j]].split())).lower() + " - " + ("".join(childResults[:,5][ret[i][j]].split())).lower()
+                couple.append(newKid)
+            for j in range(len(ret[coParents[i]])):
+                newKid = childResults[:,1][ret[coParents[i]][j]] + " - " + ("".join(childResults[:,3][ret[coParents[i]][j]].split())).lower() + " - " + ("".join(childResults[:,5][ret[coParents[i]][j]].split())).lower()
+                couple.append(newKid)
+            data.append(couple)
+            printedCoparents.append(coParents[i])
+
 
     f = open("daveOut.csv", "w", newline='')
     out = csv.writer(f,dialect='excel')
