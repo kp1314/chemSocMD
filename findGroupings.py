@@ -12,7 +12,7 @@ def main():
     parentUsers = parentResults[:,3]
     coParentUsers = parentResults[:,4]
     ancillary = parentResults[:,5]
-    childAncillarys = childResults[:,5]
+    childAncillarys = childResults[:,3]
     coParents = [-1 for i in range(len(parentUsers))]
 
     for i in range(len(parentUsers)):
@@ -26,7 +26,7 @@ def main():
     joinedAncillarys = [[ancillary[i],ancillary[coParents[i]]] for i in range(len(ancillary))]
 
     # assumes all parents have one co-parent
-    ret = sortChildren(childResults[:,7:], parentResults[:,7:], joinedAncillarys, childAncillarys)
+    ret = sortChildren(childResults[:,4:], parentResults[:,7:], joinedAncillarys, childAncillarys)
 
     printedCoparents = []
     data = []
@@ -35,10 +35,10 @@ def main():
         if i not in printedCoparents:
             couple = [parentResults[:,1][i] + " - " + parentResults[:,5][i] + " and " + parentResults[:,1][coParents[i]] + " - " + parentResults[:,5][coParents[i]]]
             for j in range(len(ret[i])):
-                newKid = childResults[:,1][ret[i][j]] + " - " + ("".join(childResults[:,3][ret[i][j]].split())).lower() + " - " + ("".join(childResults[:,5][ret[i][j]].split())).lower()
+                newKid = childResults[:,1][ret[i][j]] + " - " + ("".join(childResults[:,2][ret[i][j]].split())).lower() + " - " + ("".join(childResults[:,3][ret[i][j]].split())).lower()
                 couple.append(newKid)
             for j in range(len(ret[coParents[i]])):
-                newKid = childResults[:,1][ret[coParents[i]][j]] + " - " + ("".join(childResults[:,3][ret[coParents[i]][j]].split())).lower() + " - " + ("".join(childResults[:,5][ret[coParents[i]][j]].split())).lower()
+                newKid = childResults[:,1][ret[coParents[i]][j]] + " - " + ("".join(childResults[:,2][ret[coParents[i]][j]].split())).lower() + " - " + ("".join(childResults[:,3][ret[coParents[i]][j]].split())).lower()
                 couple.append(newKid)
             data.append(couple)
             printedCoparents.append(coParents[i])
